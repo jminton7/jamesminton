@@ -20,7 +20,9 @@ export default function Home() {
           © {new Date().getFullYear()} James Minton
         </div>
         <div className="absolute bottom-2 right-0 w-44 h-12 bg-black"></div>
-        <Spline scene="https://prod.spline.design/tYReF9nGNM1CsFws/scene.splinecode" />
+        {/* Robot but a bit too heavy :( */}
+        {/* <Spline scene="https://prod.spline.design/tYReF9nGNM1CsFws/scene.splinecode" /> */}
+        <Spline scene="https://prod.spline.design/yCxlO0OBTATa2Ti7/scene.splinecode" />{" "}
       </div>
     </main>
   );
