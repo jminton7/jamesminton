@@ -1,29 +1,82 @@
-import Spline from "@splinetool/react-spline/next";
+import HeroSection from "@/components/organisms/HeroSection";
+import SectionLayout from "@/components/templates/SectionLayout";
+import ExperienceCard from "@/components/organisms/ExperienceCard";
+import FunProjectCard from "@/components/organisms/FunProjectCard";
+import SkillsGrid from "@/components/organisms/SkillsGrid";
+import Footer from "@/components/organisms/Footer";
+import BusinessCard from "@/components/organisms/BusinessCard";
+import { profile } from "@/data/profile";
+import { experiences } from "@/data/experience";
+import { funProjects } from "@/data/funProjects";
+import { skillCategories } from "@/data/skills";
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-black">
-      <div className="h-screen w-screen relative">
-        <div className="absolute top-10 left-10 text-white flex flex-col space-y-2">
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight text-gray-100">
-              James Minton
-            </h1>
-            <h2 className="text-xl font-light text-gray-300 mt-1">
-              Lead Software Developer
-            </h2>
-          </div>
-          <div className="text-sm font-light text-gray-400 opacity-75">
-            Website Under Maintenance
-          </div>
+    <main className="relative min-h-screen">
+      {/* Business Card */}
+      <BusinessCard
+        name={profile.name}
+        title={profile.title}
+        email={profile.email}
+        location={profile.location}
+      />
+
+      {/* Hero Section */}
+      <HeroSection
+        name={profile.name}
+        title={profile.title}
+        tagline={profile.tagline}
+      />
+
+      {/* Experience Section */}
+      <SectionLayout
+        title="Experience"
+        subtitle="My professional journey and the companies I've worked with"
+      >
+        <div className="max-w-3xl mx-auto">
+          {experiences.map((exp, index) => (
+            <ExperienceCard
+              key={exp.company}
+              company={exp.company}
+              role={exp.role}
+              period={exp.period}
+              description={exp.description}
+              technologies={exp.technologies}
+              index={index}
+            />
+          ))}
         </div>
-        <div className="absolute bottom-5 right-50 text-white text-sm font-light opacity-50">
-          © {new Date().getFullYear()} James Minton
+      </SectionLayout>
+
+      {/* Fun Projects Section */}
+      <SectionLayout
+        title="Fun Stuff"
+        subtitle="Experimental projects and API integrations I'm building for fun"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {funProjects.map((project, index) => (
+            <FunProjectCard
+              key={project.title}
+              title={project.title}
+              description={project.description}
+              icon={project.icon}
+              technologies={project.technologies}
+              status={project.status}
+              index={index}
+            />
+          ))}
         </div>
-        <div className="absolute bottom-2 right-0 w-44 h-12 bg-black"></div>
-        {/* Robot but a bit too heavy :( */}
-        {/* <Spline scene="https://prod.spline.design/tYReF9nGNM1CsFws/scene.splinecode" /> */}
-        <Spline scene="https://prod.spline.design/yCxlO0OBTATa2Ti7/scene.splinecode" />{" "}
-      </div>
+      </SectionLayout>
+
+      {/* Skills Section */}
+      <SectionLayout
+        title="Skills & Technologies"
+        subtitle="The tools and technologies I work with"
+      >
+        <SkillsGrid categories={skillCategories} />
+      </SectionLayout>
+
+      <Footer />
     </main>
   );
 }
