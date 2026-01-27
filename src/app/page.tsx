@@ -3,9 +3,11 @@ import SectionLayout from "@/components/templates/SectionLayout";
 import ExperienceCard from "@/components/organisms/ExperienceCard";
 import FunProjectCard from "@/components/organisms/FunProjectCard";
 import SkillsGrid from "@/components/organisms/SkillsGrid";
+import AboutSection from "@/components/organisms/AboutSection";
+import ContactSection from "@/components/organisms/ContactSection";
 import Footer from "@/components/organisms/Footer";
 import BusinessCard from "@/components/organisms/BusinessCard";
-import { profile } from "@/data/profile";
+import { profile, about } from "@/data/profile";
 import { experiences } from "@/data/experience";
 import { funProjects } from "@/data/funProjects";
 import { skillCategories } from "@/data/skills";
@@ -27,6 +29,9 @@ export default function Home() {
         title={profile.title}
         tagline={profile.tagline}
       />
+
+      {/* About Section */}
+      <AboutSection bio={about.bio} highlights={about.highlights} />
 
       {/* Experience Section */}
       <SectionLayout
@@ -75,6 +80,9 @@ export default function Home() {
       >
         <SkillsGrid categories={skillCategories} />
       </SectionLayout>
+
+      {/* Contact Section */}
+      <ContactSection email={profile.email} />
 
       <Footer />
     </main>

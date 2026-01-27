@@ -2,13 +2,13 @@
 
 import { motion } from "framer-motion";
 import AnimatedText from "../atoms/AnimatedText";
-import Text from "../atoms/Text";
+import TypewriterText from "../atoms/TypewriterText";
 import Button from "../atoms/Button";
 import SocialLinks from "../molecules/SocialLinks";
 
 /**
  * HeroSection - Full-screen landing section with animated name, title, and CTAs.
- * Features a scroll indicator animation at the bottom.
+ * Features a typewriter effect for the tagline and scroll indicator animation.
  */
 
 interface HeroSectionProps {
@@ -23,16 +23,23 @@ export default function HeroSection({
   tagline,
 }: HeroSectionProps) {
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-6">
+    <section className="relative min-h-screen flex flex-col items-center justify-center px-4 md:px-6 pt-16 md:pt-0">
       <div className="max-w-4xl mx-auto text-center z-10">
+        {/* Terminal-style greeting */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
           className="mb-6"
         >
-          <span className="text-sm font-medium text-purple-400 tracking-widest uppercase">
-            Welcome to my portfolio
+          <span className="inline-flex items-center gap-2 text-xs md:text-sm font-mono text-purple-400 bg-gray-900/50 px-3 py-2 md:px-4 rounded-lg border border-gray-800">
+            <span className="text-green-400">$</span>
+            <TypewriterText
+              text="welcome --to my portfolio"
+              delay={0.3}
+              speed={40}
+              className="text-gray-300"
+            />
           </span>
         </motion.div>
 
@@ -52,38 +59,19 @@ export default function HeroSection({
           </h2>
         </motion.div>
 
-        <Text variant="subtitle" delay={0.8} className="max-w-2xl mx-auto mb-8">
-          {tagline}
-        </Text>
-
+        {/* Typewriter tagline */}
         <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1, duration: 0.5 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+          className="max-w-2xl mx-auto mb-8"
         >
-          <Button href="#experience">View My Work</Button>
-          <Button href="/cv.pdf" variant="secondary">
-            <span className="flex items-center gap-2">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              Download CV
-            </span>
-          </Button>
+          <p className="text-lg text-gray-400">
+            <TypewriterText text={tagline} delay={1.8} speed={25} />
+          </p>
         </motion.div>
 
-        <SocialLinks className="justify-center mt-12" />
+        <SocialLinks className="justify-center mt-8" />
       </div>
 
       {/* Scroll indicator */}

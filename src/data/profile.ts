@@ -18,14 +18,15 @@ export const profile = {
 
 export const about = {
   bio: [
-    "I'm a Full Stack Lead Software Engineer with over 10 years of experience delivering scalable, high-performance web applications. I have a proven record of leading cross-functional teams, driving architecture modernization, and delivering enterprise-scale features that generate millions in revenue.",
-    "Currently leading a team of 5 engineers through the transition from a modular monolith to modern microservices, including porting React.js code into Next.js with atomic architecture and upgrading from .NET 4.5 to .NET 9.",
-    "When I'm not coding, you'll find me playing squash, collecting trading card games, or studying Japanese.",
+    "I am a passionate full-stack engineer with over a decade of experience building scalable, high-performance web applications. I thrive on solving complex problems and creating seamless experiences for both users and developers alike.",
+    "My expertise spans the entire stack, from crafting elegant frontends to architecting robust backend systems. I love modernizing legacy codebases and guiding teams through challenging transitions—whether that's moving from monoliths to microservices or upgrading aging frameworks to cutting-edge solutions.",
+    "I believe great software is built by great teams. I'm passionate about mentoring engineers, fostering open collaboration, and creating environments where everyone feels empowered to contribute. When the team is having fun and communicating openly, that's when the best work happens.",
+    "Outside of work, you'll find me on the squash court, battling it out in Magic: The Gathering, or practicing my Japanese.",
   ],
   highlights: [
     { label: "Years Experience", value: "10+" },
     { label: "Monthly Revenue Generated", value: "£15M+" },
-    { label: "Team Members Led", value: "5" },
+    { label: "Team Members Led", value: "10" },
     { label: "Subscription Records Managed", value: "200K+" },
   ],
 };
