@@ -100,53 +100,52 @@ function getClientIp(request: NextRequest): string {
  * These shouldn't count as real visitors.
  */
 function isBot(userAgent: string): boolean {
-  const botPatterns = [
+  const lowerUA = userAgent.toLowerCase();
+
+  // Common bot identifiers (case-insensitive substring match)
+  const botKeywords = [
     // Search engines
-    /googlebot/i,
-    /bingbot/i,
-    /yandexbot/i,
-    /duckduckbot/i,
-    /baiduspider/i,
-    /slurp/i, // Yahoo
+    "googlebot",
+    "bingbot",
+    "yandexbot",
+    "duckduckbot",
+    "baiduspider",
+    "slurp", // Yahoo
     // Social media
-    /facebookexternalhit/i,
-    /twitterbot/i,
-    /linkedinbot/i,
-    /pinterest/i,
-    /whatsapp/i,
-    /telegrambot/i,
+    "facebookexternalhit",
+    "twitterbot",
+    "linkedinbot",
+    "pinterestbot",
+    "whatsapp",
+    "telegrambot",
     // Monitoring & uptime
-    /uptimerobot/i,
-    /pingdom/i,
-    /statuscake/i,
-    /newrelic/i,
-    /datadog/i,
-    /site24x7/i,
-    // Vercel/Cloud
-    /vercel/i,
-    /node-fetch/i,
-    /axios/i,
-    /got\//i,
-    /curl/i,
-    /wget/i,
-    /python-requests/i,
-    /httpx/i,
-    // Generic bot patterns
-    /bot/i,
-    /crawl/i,
-    /spider/i,
-    /scrape/i,
-    /headless/i,
-    /phantom/i,
-    /selenium/i,
-    /puppeteer/i,
-    /playwright/i,
+    "uptimerobot",
+    "pingdom",
+    "statuscake",
+    "newrelic",
+    "datadog",
+    "site24x7",
+    // HTTP libraries (likely programmatic access)
+    "node-fetch",
+    "axios",
+    "python-requests",
+    "httpx",
+    "curl/",
+    "wget/",
+    // Headless browsers
+    "headlesschrome",
+    "phantomjs",
+    "selenium",
+    "puppeteer",
+    "playwright",
     // Preview/embed
-    /preview/i,
-    /embed/i,
-    /slack/i,
-    /discord/i,
+    "slackbot",
+    "discordbot",
+    // Generic bot patterns - be careful not to match "robot" in legitimate UAs
+    "spider",
+    "crawl",
+    "scraper",
   ];
 
-  return botPatterns.some((pattern) => pattern.test(userAgent));
+  return botKeywords.some((keyword) => lowerUA.includes(keyword));
 }
