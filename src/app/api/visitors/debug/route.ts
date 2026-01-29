@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { visitorRepository } from "@/lib/repositories/VisitorRepository";
 
 /**
@@ -9,7 +9,7 @@ import { visitorRepository } from "@/lib/repositories/VisitorRepository";
  * ⚠️ WARNING: Only use in development! Remove or protect in production.
  */
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   // Optional: Block in production
   // if (process.env.NODE_ENV === "production") {
   //   return NextResponse.json({ error: "Not available in production" }, { status: 403 });
@@ -19,11 +19,19 @@ export async function GET(): Promise<NextResponse> {
     const debugData = await visitorRepository.getDebugData();
     const stats = await visitorRepository.getStats();
 
+    // Include IP headers for debugging geo issues
+    const ipHeaders = {
+      "x-real-ip": request.headers.get("x-real-ip"),
+      "x-forwarded-for": request.headers.get("x-forwarded-for"),
+      "cf-connecting-ip": request.headers.get("cf-connecting-ip"),
+    };
+
     return NextResponse.json(
       {
         stats,
         debug: {
           ...debugData,
+          ipHeaders,
           redisKeys: {
             totalCount: "visitors:total_count",
             uniqueVisitors: "visitors:unique_set",

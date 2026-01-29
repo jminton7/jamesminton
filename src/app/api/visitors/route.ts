@@ -58,10 +58,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  * Handles various proxy headers (Vercel, Cloudflare, etc.)
  */
 function getClientIp(request: NextRequest): string {
-  // Vercel provides this header
+  // Vercel's dedicated header for real client IP (most reliable on Vercel)
+  const vercelIp = request.headers.get("x-real-ip");
+  if (vercelIp) {
+    return vercelIp;
+  }
+
+  // Vercel also sets x-forwarded-for but it may contain proxy chain
   const forwardedFor = request.headers.get("x-forwarded-for");
   if (forwardedFor) {
-    // Take the first IP if there are multiple (proxy chain)
+    // Take the first IP (original client) if there are multiple
     return forwardedFor.split(",")[0].trim();
   }
 
@@ -69,12 +75,6 @@ function getClientIp(request: NextRequest): string {
   const cfConnectingIp = request.headers.get("cf-connecting-ip");
   if (cfConnectingIp) {
     return cfConnectingIp;
-  }
-
-  // Real IP header (nginx)
-  const realIp = request.headers.get("x-real-ip");
-  if (realIp) {
-    return realIp;
   }
 
   // Fallback
