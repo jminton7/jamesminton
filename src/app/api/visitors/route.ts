@@ -21,6 +21,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const ipAddress = getClientIp(request);
     const userAgent = request.headers.get("user-agent") ?? "unknown";
 
+    // Skip bots and crawlers - only track real users
+    if (isBot(userAgent)) {
+      const stats = await visitorService.getStats();
+      return NextResponse.json(
+        {
+          visitorNumber: 0,
+          isNewVisitor: false,
+          message: "Stats only (bot detected)",
+          stats,
+        },
+        { status: 200 },
+      );
+    }
+
     // Generate a consistent visitor ID
     const visitorId = visitorService.generateVisitorId(ipAddress, userAgent);
 
@@ -79,4 +93,60 @@ function getClientIp(request: NextRequest): string {
 
   // Fallback
   return "unknown";
+}
+
+/**
+ * Detects bots, crawlers, and monitoring services.
+ * These shouldn't count as real visitors.
+ */
+function isBot(userAgent: string): boolean {
+  const botPatterns = [
+    // Search engines
+    /googlebot/i,
+    /bingbot/i,
+    /yandexbot/i,
+    /duckduckbot/i,
+    /baiduspider/i,
+    /slurp/i, // Yahoo
+    // Social media
+    /facebookexternalhit/i,
+    /twitterbot/i,
+    /linkedinbot/i,
+    /pinterest/i,
+    /whatsapp/i,
+    /telegrambot/i,
+    // Monitoring & uptime
+    /uptimerobot/i,
+    /pingdom/i,
+    /statuscake/i,
+    /newrelic/i,
+    /datadog/i,
+    /site24x7/i,
+    // Vercel/Cloud
+    /vercel/i,
+    /node-fetch/i,
+    /axios/i,
+    /got\//i,
+    /curl/i,
+    /wget/i,
+    /python-requests/i,
+    /httpx/i,
+    // Generic bot patterns
+    /bot/i,
+    /crawl/i,
+    /spider/i,
+    /scrape/i,
+    /headless/i,
+    /phantom/i,
+    /selenium/i,
+    /puppeteer/i,
+    /playwright/i,
+    // Preview/embed
+    /preview/i,
+    /embed/i,
+    /slack/i,
+    /discord/i,
+  ];
+
+  return botPatterns.some((pattern) => pattern.test(userAgent));
 }
