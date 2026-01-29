@@ -43,7 +43,7 @@ export default function ContactSection({ email }: ContactSectionProps) {
 
         <motion.a
           href={mailtoLink}
-          className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-full hover:from-purple-500 hover:to-blue-500 transition-all shadow-lg shadow-purple-500/25"
+          className="inline-flex items-center gap-3 px-8 py-4 bg-linear-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-full hover:from-purple-500 hover:to-blue-500 transition-all shadow-lg shadow-purple-500/25"
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.98 }}
         >

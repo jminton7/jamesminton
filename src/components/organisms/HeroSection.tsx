@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import AnimatedText from "../atoms/AnimatedText";
 import TypewriterText from "../atoms/TypewriterText";
-import Button from "../atoms/Button";
 import SocialLinks from "../molecules/SocialLinks";
 
 /**
@@ -54,7 +53,7 @@ export default function HeroSection({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.5 }}
         >
-          <h2 className="text-2xl md:text-3xl font-light text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400 mb-6">
+          <h2 className="text-2xl md:text-3xl font-light text-transparent bg-clip-text bg-linear-to-r from-purple-400 to-blue-400 mb-6">
             {title}
           </h2>
         </motion.div>

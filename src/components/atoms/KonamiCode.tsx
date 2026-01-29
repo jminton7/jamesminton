@@ -64,7 +64,7 @@ export default function KonamiCode() {
       <AnimatePresence>
         {showMessage && (
           <motion.div
-            className="fixed inset-0 z-[100] pointer-events-none flex items-center justify-center"
+            className="fixed inset-0 z-100 pointer-events-none flex items-center justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -100,7 +100,7 @@ export default function KonamiCode() {
 
             {/* Achievement popup */}
             <motion.div
-              className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6 rounded-2xl shadow-2xl border border-white/20"
+              className="bg-linear-to-r from-purple-600 to-blue-600 px-8 py-6 rounded-2xl shadow-2xl border border-white/20"
               initial={{ scale: 0, rotate: -10 }}
               animate={{ scale: 1, rotate: 0 }}
               exit={{ scale: 0, opacity: 0 }}
@@ -132,7 +132,7 @@ export default function KonamiCode() {
       {/* Rainbow border effect when activated (persists) */}
       {isActivated && (
         <div
-          className="fixed inset-0 pointer-events-none z-[99]"
+          className="fixed inset-0 pointer-events-none z-99"
           style={{
             background:
               "linear-gradient(90deg, rgba(168,85,247,0.1), rgba(59,130,246,0.1), rgba(34,197,94,0.1), rgba(234,179,8,0.1), rgba(239,68,68,0.1))",

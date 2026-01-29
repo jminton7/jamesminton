@@ -33,7 +33,7 @@ export default function ProjectCard({
       whileHover={{ y: -5 }}
     >
       {/* Project image/preview */}
-      <div className="relative h-48 bg-gradient-to-br from-purple-900/30 to-blue-900/30 overflow-hidden">
+      <div className="relative h-48 bg-linear-to-br from-purple-900/30 to-blue-900/30 overflow-hidden">
         {image ? (
           <img src={image} alt={title} className="w-full h-full object-cover" />
         ) : (
@@ -41,7 +41,7 @@ export default function ProjectCard({
             <span className="text-6xl font-bold text-white/10">{title[0]}</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-gray-900 to-transparent" />
       </div>
 
       <div className="p-6">

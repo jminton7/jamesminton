@@ -62,7 +62,7 @@ export default function AboutSection({ bio, highlights }: AboutSectionProps) {
               transition={{ delay: 0.3 + index * 0.1, duration: 0.4 }}
               whileHover={{ y: -5 }}
             >
-              <p className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
+              <p className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-linear-to-r from-purple-400 to-blue-400">
                 {highlight.value}
               </p>
               <p className="text-gray-400 text-xs md:text-sm mt-2">

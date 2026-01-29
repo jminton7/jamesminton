@@ -67,7 +67,7 @@ export default function TypewriterText({
       <span className="font-mono">{displayedText}</span>
       {showCursor && (
         <span
-          className={`inline-block w-[2px] h-[1.1em] bg-purple-400 ml-0.5 align-middle ${
+          className={`inline-block w-0.5 h-[1.1em] bg-purple-400 ml-0.5 align-middle ${
             showCursorBlink || isTyping ? "opacity-100" : "opacity-0"
           }`}
           style={{ transition: "opacity 0.1s" }}

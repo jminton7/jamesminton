@@ -61,7 +61,7 @@ export default function VisitorCounterCard({
 
   return (
     <motion.div
-      className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 border border-gray-700 overflow-hidden group hover:border-purple-500/50 transition-colors"
+      className="relative bg-linear-to-br from-gray-900 to-gray-800 rounded-2xl p-6 border border-gray-700 overflow-hidden group hover:border-purple-500/50 transition-colors"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}

@@ -40,7 +40,7 @@ export default function ExperienceCard({
     >
       {/* Timeline dot */}
       <motion.div
-        className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-gradient-to-r from-purple-500 to-blue-500"
+        className="absolute -left-2.25 top-0 w-4 h-4 rounded-full bg-linear-to-r from-purple-500 to-blue-500"
         initial={{ scale: 0 }}
         animate={isInView ? { scale: 1 } : { scale: 0 }}
         transition={{ delay: index * 0.1 + 0.1, type: "spring" }}

@@ -32,7 +32,7 @@ export default function NavLink({
       >
         {children}
         <motion.div
-          className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500"
+          className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-purple-500 to-blue-500"
           initial={false}
           animate={{
             scaleX: isActive ? 1 : 0,

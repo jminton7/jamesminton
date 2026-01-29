@@ -76,9 +76,9 @@ export default function BusinessCard({
         whileHover={{ scale: 1.05 }}
       >
         <div className="relative overflow-hidden bg-gray-900 rounded-xl p-4 border border-purple-500/30 shadow-lg shadow-purple-500/10">
-          <div className="absolute inset-0 opacity-30 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+          <div className="absolute inset-0 opacity-30 bg-linear-to-r from-transparent via-purple-500/30 to-transparent" />
           <div className="relative flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-10 h-10 rounded-full bg-linear-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold text-sm">
               {name
                 .split(" ")
                 .map((n) => n[0])
@@ -159,7 +159,7 @@ export default function BusinessCard({
                   transition={{ type: "spring", ...SPRING_CONFIG }}
                 >
                   {/* Card base */}
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800" />
+                  <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-gray-800 via-gray-900 to-gray-800" />
 
                   {/* Holographic rainbow effect */}
                   <div
@@ -194,7 +194,7 @@ export default function BusinessCard({
                     {/* Top section */}
                     <div className="flex items-start gap-5">
                       <div
-                        className="w-20 h-20 rounded-xl bg-gradient-to-br from-purple-500 via-purple-600 to-blue-600 flex items-center justify-center text-white text-2xl font-bold"
+                        className="w-20 h-20 rounded-xl bg-linear-to-br from-purple-500 via-purple-600 to-blue-600 flex items-center justify-center text-white text-2xl font-bold"
                         style={{
                           boxShadow: "0 10px 40px rgba(168, 85, 247, 0.4)",
                         }}

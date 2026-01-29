@@ -30,19 +30,19 @@ export default function RootLayout({
       >
         {/* Shared animated gradient background */}
         <div className="fixed inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-b from-gray-950 via-black to-gray-950" />
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-transparent to-blue-900/30" />
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
-          <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-b from-gray-950 via-black to-gray-950" />
+          <div className="absolute inset-0 bg-linear-to-br from-purple-900/30 via-transparent to-blue-900/30" />
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
+          <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_right,var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent" />
 
           {/* Animated orbs */}
-          <div className="absolute top-20 left-1/4 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] animate-pulse" />
+          <div className="absolute top-20 left-1/4 w-125 h-125 bg-purple-600/20 rounded-full blur-[100px] animate-pulse" />
           <div
-            className="absolute bottom-20 right-1/4 w-[400px] h-[400px] bg-blue-600/20 rounded-full blur-[100px] animate-pulse"
+            className="absolute bottom-20 right-1/4 w-100 h-100 bg-blue-600/20 rounded-full blur-[100px] animate-pulse"
             style={{ animationDelay: "1s" }}
           />
           <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-800/10 rounded-full blur-[120px] animate-pulse"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-purple-800/10 rounded-full blur-[120px] animate-pulse"
             style={{ animationDelay: "0.5s" }}
           />
 

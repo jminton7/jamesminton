@@ -160,7 +160,7 @@ export default function ClickAchievements() {
             initial={{ opacity: 0, x: 100, scale: 0.8 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 100, scale: 0.8 }}
-            className="bg-gray-900/95 backdrop-blur-sm border border-yellow-500/50 rounded-lg p-4 shadow-lg shadow-yellow-500/20 min-w-[280px]"
+            className="bg-gray-900/95 backdrop-blur-sm border border-yellow-500/50 rounded-lg p-4 shadow-lg shadow-yellow-500/20 min-w-70"
           >
             <div className="flex items-center gap-3">
               <span className="text-3xl">{toast.achievement.icon}</span>

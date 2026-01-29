@@ -37,7 +37,7 @@ function SkillCategory({
       transition={{ delay: index * 0.1, duration: 0.4 }}
     >
       <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-        <span className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-lg">
+        <span className="w-10 h-10 rounded-lg bg-linear-to-br from-purple-500 to-blue-500 flex items-center justify-center text-lg">
           {category.icon || "💻"}
         </span>
         {category.name}

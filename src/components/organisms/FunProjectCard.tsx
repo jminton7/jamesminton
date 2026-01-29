@@ -56,7 +56,7 @@ export default function FunProjectCard({
       whileHover={{ y: -5 }}
     >
       {/* Glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="absolute inset-0 bg-linear-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
 
       {/* Status badge */}
       <div className="absolute top-4 right-4">
@@ -69,7 +69,7 @@ export default function FunProjectCard({
 
       {/* Icon */}
       <motion.div
-        className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center text-3xl mb-4 border border-purple-500/20"
+        className="w-16 h-16 rounded-2xl bg-linear-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center text-3xl mb-4 border border-purple-500/20"
         whileHover={{ scale: 1.1, rotate: 5 }}
         transition={{ type: "spring", stiffness: 300 }}
       >
