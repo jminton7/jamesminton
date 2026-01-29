@@ -5,6 +5,7 @@
 
 export const experiences = [
   {
+    id: "bytes-lead",
     company: "Bytes Software Services",
     role: "Full Stack Lead Software Engineer",
     period: "Apr 2022 - Present",
@@ -21,6 +22,7 @@ export const experiences = [
     ],
   },
   {
+    id: "bytes-engineer",
     company: "Bytes Software Services",
     role: "Full Stack Software Engineer",
     period: "2016 - 2022",
@@ -37,6 +39,7 @@ export const experiences = [
     ],
   },
   {
+    id: "cranswick",
     company: "Cranswick Computing",
     role: "Full Stack Junior Software Engineer",
     period: "2014 - 2016",

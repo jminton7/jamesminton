@@ -44,12 +44,4 @@ export const funProjects = [
     technologies: ["TypeScript", "Prism.js", "Monaco Editor"],
     status: "coming-soon" as const,
   },
-  {
-    title: "Live Visitor Globe",
-    description:
-      "3D globe visualization showing real-time visitor locations and site analytics.",
-    icon: "🌍",
-    technologies: ["Three.js", "WebGL", "Analytics API"],
-    status: "coming-soon" as const,
-  },
 ];

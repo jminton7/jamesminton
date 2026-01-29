@@ -121,11 +121,11 @@ export default function ClickAchievements() {
         ) {
           // Mark as unlocked IMMEDIATELY to prevent duplicates
           unlockedIdsRef.current.add(achievement.id);
-          
+
           // Save unlocked achievements
           localStorage.setItem(
             "jm-achievements",
-            JSON.stringify([...unlockedIdsRef.current])
+            JSON.stringify([...unlockedIdsRef.current]),
           );
 
           // Show toast
@@ -136,7 +136,7 @@ export default function ClickAchievements() {
           console.log(
             `%c🏆 Achievement Unlocked: ${achievement.title}!%c\n${achievement.description}`,
             "font-size: 14px; font-weight: bold; color: #fbbf24;",
-            "font-size: 12px; color: #9ca3af;"
+            "font-size: 12px; color: #9ca3af;",
           );
 
           // Remove toast after delay

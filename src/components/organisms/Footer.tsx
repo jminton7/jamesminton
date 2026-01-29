@@ -2,9 +2,10 @@
 
 import { motion } from "framer-motion";
 import SocialLinks from "../molecules/SocialLinks";
+import VisitorCounter from "../atoms/VisitorCounter";
 
 /**
- * Footer - Site footer with copyright info and social links.
+ * Footer - Site footer with copyright info, social links, and visitor counter.
  */
 
 export default function Footer() {
@@ -23,6 +24,7 @@ export default function Footer() {
           <p className="text-gray-500 text-xs mt-1">
             Built with Next.js, Tailwind CSS & Framer Motion
           </p>
+          <VisitorCounter className="mt-2" />
         </div>
         <SocialLinks />
       </div>

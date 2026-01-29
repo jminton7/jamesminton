@@ -2,6 +2,7 @@
 
 import PageLayout from "@/components/templates/PageLayout";
 import FunProjectCard from "@/components/organisms/FunProjectCard";
+import VisitorCounterCard from "@/components/molecules/VisitorCounterCard";
 import { funProjects } from "@/data/funProjects";
 
 export default function FunStuffPage() {
@@ -22,6 +23,9 @@ export default function FunStuffPage() {
 
           {/* Projects Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Live Visitor Counter - Featured first! */}
+            <VisitorCounterCard />
+
             {funProjects.map((project, index) => (
               <FunProjectCard
                 key={project.title}

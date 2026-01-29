@@ -7,6 +7,7 @@ import AboutSection from "@/components/organisms/AboutSection";
 import ContactSection from "@/components/organisms/ContactSection";
 import Footer from "@/components/organisms/Footer";
 import BusinessCard from "@/components/organisms/BusinessCard";
+import VisitorCounterCard from "@/components/molecules/VisitorCounterCard";
 import { profile, about } from "@/data/profile";
 import { experiences } from "@/data/experience";
 import { funProjects } from "@/data/funProjects";
@@ -41,7 +42,7 @@ export default function Home() {
         <div className="max-w-3xl mx-auto">
           {experiences.map((exp, index) => (
             <ExperienceCard
-              key={exp.company}
+              key={exp.id}
               company={exp.company}
               role={exp.role}
               period={exp.period}
@@ -59,7 +60,9 @@ export default function Home() {
         subtitle="Experimental projects and API integrations I'm building for fun"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {funProjects.map((project, index) => (
+          <VisitorCounterCard />
+
+          {funProjects.slice(0, 5).map((project, index) => (
             <FunProjectCard
               key={project.title}
               title={project.title}

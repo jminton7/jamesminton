@@ -23,7 +23,7 @@ export default function ExperiencePage() {
           <div className="max-w-3xl mx-auto">
             {experiences.map((exp, index) => (
               <ExperienceCard
-                key={exp.company}
+                key={exp.id}
                 company={exp.company}
                 role={exp.role}
                 period={exp.period}
