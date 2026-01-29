@@ -40,7 +40,8 @@ export default function VisitorCounterCard({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/api/visitors/stats");
+        // Add cache-busting to get fresh data
+        const response = await fetch(`/api/visitors/stats?t=${Date.now()}`);
         if (response.ok) {
           const result = await response.json();
           setStats(result);
