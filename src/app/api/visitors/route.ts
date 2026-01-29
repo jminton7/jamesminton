@@ -22,7 +22,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const userAgent = request.headers.get("user-agent") ?? "unknown";
 
     // Skip bots and crawlers - only track real users
-    if (isBot(userAgent)) {
+    if (isBot(userAgent) || isBotIp(ipAddress)) {
       const stats = await visitorService.getStats();
       return NextResponse.json(
         {
@@ -148,4 +148,35 @@ function isBot(userAgent: string): boolean {
   ];
 
   return botKeywords.some((keyword) => lowerUA.includes(keyword));
+}
+
+/**
+ * Detects known bot/crawler IP ranges.
+ * These are IPs from cloud providers and search engines that crawl sites.
+ */
+function isBotIp(ip: string): boolean {
+  // Known bot IP prefixes (Google, Vercel, AWS monitoring, etc.)
+  const botIpPrefixes = [
+    // Google (Web Rendering Service, crawlers)
+    "66.102.",
+    "66.249.",
+    "64.233.",
+    "72.14.",
+    "209.85.",
+    "216.239.",
+    // Vercel (edge functions, monitoring)
+    "76.76.21.",
+    // Common cloud monitoring/health checks
+    "52.53.", // AWS (often monitoring)
+    "54.215.",
+    "54.176.",
+    "54.193.",
+    // DigitalOcean monitoring
+    "143.198.",
+    "161.35.",
+    "146.190.",
+    "164.92.",
+  ];
+
+  return botIpPrefixes.some((prefix) => ip.startsWith(prefix));
 }
