@@ -32,7 +32,7 @@ export default function VisitorCounter({
   useEffect(() => {
     const trackVisitor = async () => {
       try {
-        const response = await fetch("/api/visitors");
+        const response = await fetch("/api/visitors", { method: "POST" });
 
         if (!response.ok) {
           throw new Error("Failed to fetch visitor data");
@@ -62,7 +62,7 @@ export default function VisitorCounter({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.4 }}
-        className={`text-gray-500 text-xs font-mono ${className}`}
+        className={`text-gray-400 text-xs font-mono ${className}`}
       >
         <span className="inline-flex items-center gap-1.5">
           <span className="text-purple-400">👀</span>
@@ -78,8 +78,8 @@ export default function VisitorCounter({
               </motion.span>
             )}
           </span>
-          <span className="text-gray-600">•</span>
-          <span className="text-gray-600">
+          <span className="text-gray-400">•</span>
+          <span className="text-gray-400">
             {data.stats.uniqueCount.toLocaleString()} unique
           </span>
         </span>

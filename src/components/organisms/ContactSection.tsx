@@ -63,7 +63,7 @@ export default function ContactSection({ email }: ContactSectionProps) {
           Contact Me
         </motion.a>
 
-        <p className="text-gray-500 text-sm mt-6">{email}</p>
+        <p className="text-gray-400 text-sm mt-6">{email}</p>
       </motion.div>
     </section>
   );

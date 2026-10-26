@@ -10,7 +10,7 @@ export const profile = {
   email: "james7minton@gmail.com",
   location: "Leatherhead, United Kingdom",
   available: true,
-  resumeUrl: "/resume.pdf",
+  resumeUrl: "/cv.pdf",
   github: "https://github.com/jminton7",
   linkedin: "https://linkedin.com/in/james-minton",
   website: "https://jamesminton.dev",

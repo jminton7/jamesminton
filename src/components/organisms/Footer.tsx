@@ -28,13 +28,14 @@ export default function Footer() {
             animate={{ opacity: 1 }}
             key={joke}
           >
-            <p
-              className="text-gray-500 text-sm italic cursor-pointer hover:text-gray-400 transition-colors"
+            <button
+              type="button"
+              className="text-gray-400 text-sm italic cursor-pointer hover:text-gray-300 transition-colors"
               onClick={getNewJoke}
               title="Click for another joke"
             >
               💡 {joke}
-            </p>
+            </button>
           </motion.div>
         )}
 
@@ -43,7 +44,7 @@ export default function Footer() {
             <p className="text-gray-400 text-sm">
               © {new Date().getFullYear()} James Minton. All rights reserved.
             </p>
-            <p className="text-gray-500 text-xs mt-1">
+            <p className="text-gray-400 text-xs mt-1">
               Built with Next.js, Tailwind CSS & Framer Motion
             </p>
             <VisitorCounter className="mt-2" />

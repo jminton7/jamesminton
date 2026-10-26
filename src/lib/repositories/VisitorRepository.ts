@@ -1,8 +1,13 @@
+import { randomBytes } from "node:crypto";
 import { createClient, RedisClientType } from "redis";
 
 /**
  * VisitorRepository - Data access layer for visitor tracking.
  * Wraps Redis operations with a clean interface.
+ *
+ * Privacy: no IP addresses or cities are stored. Visitors are identified by a
+ * salted hash (see VisitorService) and only a country code is kept, which
+ * expires along with their "online" status.
  */
 
 // Keys used in Redis storage
@@ -10,28 +15,19 @@ const KEYS = {
   TOTAL_COUNT: "visitors:total_count",
   UNIQUE_VISITORS: "visitors:unique_set",
   ONLINE_SET: "visitors:online_set", // Sorted set with timestamps
-  VISITOR_DATA: "visitors:data", // Hash map for visitor details
-  COUNTRY_STATS: "visitors:countries", // Hash map for country counts
+  COUNTRY_PREFIX: "visitors:country:", // Per-visitor country code, expires
+  SALT_PREFIX: "visitors:salt:", // Daily random salt for visitor ID hashing
 } as const;
 
 // How long (in seconds) before a user is considered "offline"
 const ONLINE_TTL_SECONDS = 300; // 5 minutes
 
-export interface VisitorLocation {
-  country: string;
-  countryCode: string;
-  city: string;
-  region: string;
-}
+// Keep each salt slightly longer than a day so requests around midnight work
+const SALT_TTL_SECONDS = 60 * 60 * 25;
 
-export interface VisitorInfo {
-  id: string;
-  ip: string;
-  location: VisitorLocation | null;
-  lastSeen: Date;
-  firstSeen: Date;
-  visitCount: number;
-}
+// Fail fast if Redis is unreachable rather than hanging the function
+const CONNECT_TIMEOUT_MS = 3000;
+const MAX_RECONNECT_ATTEMPTS = 2;
 
 export interface VisitorStats {
   totalCount: number;
@@ -53,18 +49,18 @@ class RedisConnection {
    * Uses a singleton pattern to reuse connections (important for serverless).
    */
   static async getClient(): Promise<RedisClientType> {
-    // Return existing client if connected
-    if (this.client?.isOpen) {
+    if (this.client?.isReady) {
       return this.client;
     }
 
-    // If connection is in progress, wait for it
-    if (this.connectionPromise) {
-      return this.connectionPromise;
+    if (!this.connectionPromise) {
+      // Clear the cached promise on failure so the next request retries
+      this.connectionPromise = this.connect().catch((err) => {
+        this.connectionPromise = null;
+        throw err;
+      });
     }
 
-    // Start new connection
-    this.connectionPromise = this.connect();
     return this.connectionPromise;
   }
 
@@ -75,26 +71,79 @@ class RedisConnection {
       throw new Error("REDIS_URL environment variable is not set");
     }
 
-    this.client = createClient({ url: redisUrl });
+    if (this.client) {
+      this.destroyQuietly(this.client);
+      this.client = null;
+    }
 
-    // Handle connection errors
-    this.client.on("error", (err) => {
+    // Only retry once a connection has been established; if the first
+    // connection attempt fails, give up straight away so requests fail fast.
+    let hasConnected = false;
+
+    const client: RedisClientType = createClient({
+      url: redisUrl,
+      disableOfflineQueue: true,
+      socket: {
+        connectTimeout: CONNECT_TIMEOUT_MS,
+        reconnectStrategy: (retries) =>
+          !hasConnected || retries >= MAX_RECONNECT_ATTEMPTS
+            ? new Error("Redis unavailable")
+            : Math.min(100 * 2 ** retries, 1000),
+      },
+    });
+
+    client.on("ready", () => {
+      hasConnected = true;
+    });
+
+    client.on("error", (err) => {
       console.error("[Redis] Connection error:", err);
     });
 
-    await this.client.connect();
-    console.log("[Redis] Connected successfully");
+    try {
+      await client.connect();
+    } catch (err) {
+      this.destroyQuietly(client);
+      throw err;
+    }
 
-    return this.client;
+    this.client = client;
+    return client;
+  }
+
+  private static destroyQuietly(client: RedisClientType): void {
+    try {
+      client.destroy();
+    } catch {
+      // Already closed
+    }
   }
 }
 
 export class VisitorRepository {
-  /**
-   * Gets the Redis client (connects if needed).
-   */
   private async getClient(): Promise<RedisClientType> {
     return RedisConnection.getClient();
+  }
+
+  /**
+   * Gets (or creates) the random salt for the given day.
+   * Rotating the salt daily means visitor IDs can't be linked across days or
+   * reversed back to an IP address.
+   */
+  async getDailySalt(day: string): Promise<string> {
+    const client = await this.getClient();
+    const key = `${KEYS.SALT_PREFIX}${day}`;
+
+    await client.set(key, randomBytes(32).toString("hex"), {
+      condition: "NX",
+      expiration: { type: "EX", value: SALT_TTL_SECONDS },
+    });
+
+    const salt = await client.get(key);
+    if (!salt) {
+      throw new Error("Failed to read daily salt");
+    }
+    return salt;
   }
 
   /**
@@ -102,8 +151,7 @@ export class VisitorRepository {
    */
   async incrementTotalCount(): Promise<number> {
     const client = await this.getClient();
-    const count = await client.incr(KEYS.TOTAL_COUNT);
-    return count;
+    return client.incr(KEYS.TOTAL_COUNT);
   }
 
   /**
@@ -131,220 +179,85 @@ export class VisitorRepository {
    */
   async getUniqueCount(): Promise<number> {
     const client = await this.getClient();
-    const count = await client.sCard(KEYS.UNIQUE_VISITORS);
-    return count ?? 0;
+    return client.sCard(KEYS.UNIQUE_VISITORS);
   }
 
   /**
-   * Marks a visitor as online using a sorted set.
-   * The score is the timestamp, allowing us to remove stale entries.
+   * Marks a visitor as online using a sorted set, and remembers their country
+   * for as long as they're considered online.
    */
-  async setVisitorOnline(visitorId: string): Promise<void> {
-    const client = await this.getClient();
-    const now = Date.now();
-
-    // Add/update visitor in sorted set with current timestamp as score
-    await client.zAdd(KEYS.ONLINE_SET, {
-      score: now,
-      value: visitorId,
-    });
-
-    // Clean up stale entries (older than TTL)
-    const cutoff = now - ONLINE_TTL_SECONDS * 1000;
-    await client.zRemRangeByScore(KEYS.ONLINE_SET, 0, cutoff);
-  }
-
-  /**
-   * Stores visitor information including location.
-   */
-  async saveVisitorInfo(
+  async setVisitorOnline(
     visitorId: string,
-    ip: string,
-    location: VisitorLocation | null,
+    countryCode: string | null,
   ): Promise<void> {
     const client = await this.getClient();
-    const key = `${KEYS.VISITOR_DATA}:${visitorId}`;
-    const now = Date.now();
-
-    // Check if visitor exists
-    const existing = await client.hGet(key, "firstSeen");
-
-    const data: Record<string, string> = {
-      id: visitorId,
-      ip: ip,
-      lastSeen: now.toString(),
-      visitCount: "1",
-    };
-
-    if (existing) {
-      // Update existing visitor
-      const currentCount = await client.hGet(key, "visitCount");
-      data.visitCount = (parseInt(currentCount ?? "0", 10) + 1).toString();
-    } else {
-      // New visitor
-      data.firstSeen = now.toString();
-    }
-
-    if (location) {
-      data.country = location.country;
-      data.countryCode = location.countryCode;
-      data.city = location.city;
-      data.region = location.region;
-
-      // Increment country counter
-      await client.hIncrBy(KEYS.COUNTRY_STATS, location.countryCode, 1);
-    }
-
-    await client.hSet(key, data);
-  }
-
-  /**
-   * Gets visitor information by ID.
-   */
-  async getVisitorInfo(visitorId: string): Promise<VisitorInfo | null> {
-    const client = await this.getClient();
-    const key = `${KEYS.VISITOR_DATA}:${visitorId}`;
-
-    const data = await client.hGetAll(key);
-    if (!data || !data.id) return null;
-
-    return {
-      id: data.id,
-      ip: data.ip,
-      location: data.countryCode
-        ? {
-            country: data.country,
-            countryCode: data.countryCode,
-            city: data.city,
-            region: data.region,
-          }
-        : null,
-      lastSeen: new Date(parseInt(data.lastSeen, 10)),
-      firstSeen: new Date(parseInt(data.firstSeen, 10)),
-      visitCount: parseInt(data.visitCount, 10),
-    };
-  }
-
-  /**
-   * Gets country statistics for online visitors.
-   */
-  async getOnlineCountries(): Promise<{ code: string; count: number }[]> {
-    const client = await this.getClient();
     const now = Date.now();
     const cutoff = now - ONLINE_TTL_SECONDS * 1000;
 
-    // Clean up stale entries
-    await client.zRemRangeByScore(KEYS.ONLINE_SET, 0, cutoff);
+    const multi = client
+      .multi()
+      .zAdd(KEYS.ONLINE_SET, { score: now, value: visitorId })
+      .zRemRangeByScore(KEYS.ONLINE_SET, 0, cutoff);
 
-    // Get all online visitor IDs
+    if (countryCode) {
+      multi.set(`${KEYS.COUNTRY_PREFIX}${visitorId}`, countryCode, {
+        expiration: { type: "EX", value: ONLINE_TTL_SECONDS },
+      });
+    }
+
+    await multi.exec();
+  }
+
+  /**
+   * Gets the count of currently online visitors and their countries.
+   */
+  async getOnline(): Promise<{
+    onlineCount: number;
+    onlineCountries: { code: string; count: number }[];
+  }> {
+    const client = await this.getClient();
+    const cutoff = Date.now() - ONLINE_TTL_SECONDS * 1000;
+
+    await client.zRemRangeByScore(KEYS.ONLINE_SET, 0, cutoff);
     const onlineIds = await client.zRange(KEYS.ONLINE_SET, 0, -1);
 
-    // Count countries
-    const countryCounts: Record<string, number> = {};
+    if (onlineIds.length === 0) {
+      return { onlineCount: 0, onlineCountries: [] };
+    }
 
-    for (const visitorId of onlineIds) {
-      const info = await this.getVisitorInfo(visitorId);
-      if (info?.location?.countryCode) {
-        const code = info.location.countryCode;
+    const codes = await client.mGet(
+      onlineIds.map((id) => `${KEYS.COUNTRY_PREFIX}${id}`),
+    );
+
+    const countryCounts: Record<string, number> = {};
+    for (const code of codes) {
+      if (code) {
         countryCounts[code] = (countryCounts[code] ?? 0) + 1;
       }
     }
 
-    // Convert to array and sort by count
-    return Object.entries(countryCounts)
-      .map(([code, count]) => ({ code, count }))
-      .sort((a, b) => b.count - a.count);
-  }
-
-  /**
-   * Gets the count of currently online visitors.
-   */
-  async getOnlineCount(): Promise<number> {
-    const client = await this.getClient();
-    const now = Date.now();
-    const cutoff = now - ONLINE_TTL_SECONDS * 1000;
-
-    // First, clean up stale entries
-    await client.zRemRangeByScore(KEYS.ONLINE_SET, 0, cutoff);
-
-    // Count remaining (active) entries
-    const count = await client.zCard(KEYS.ONLINE_SET);
-    return count;
-  }
-
-  /**
-   * Checks if a visitor is currently marked as online.
-   */
-  async isVisitorOnline(visitorId: string): Promise<boolean> {
-    const client = await this.getClient();
-    const score = await client.zScore(KEYS.ONLINE_SET, visitorId);
-    if (score === null) return false;
-
-    // Check if the entry is still valid (not expired)
-    const cutoff = Date.now() - ONLINE_TTL_SECONDS * 1000;
-    return score > cutoff;
+    return {
+      onlineCount: onlineIds.length,
+      onlineCountries: Object.entries(countryCounts)
+        .map(([code, count]) => ({ code, count }))
+        .sort((a, b) => b.count - a.count),
+    };
   }
 
   /**
    * Gets all visitor statistics including online count and countries.
    */
   async getStats(): Promise<VisitorStats> {
-    const [totalCount, uniqueCount, onlineCount, onlineCountries] =
-      await Promise.all([
-        this.getTotalCount(),
-        this.getUniqueCount(),
-        this.getOnlineCount(),
-        this.getOnlineCountries(),
-      ]);
+    const [totalCount, uniqueCount, online] = await Promise.all([
+      this.getTotalCount(),
+      this.getUniqueCount(),
+      this.getOnline(),
+    ]);
 
     return {
       totalCount,
       uniqueCount,
-      onlineCount,
-      onlineCountries,
-    };
-  }
-
-  /**
-   * Gets all data for debugging purposes.
-   * Only use in development!
-   */
-  async getDebugData(): Promise<{
-    totalCount: number;
-    uniqueVisitors: string[];
-    onlineVisitors: VisitorInfo[];
-    countryStats: Record<string, number>;
-  }> {
-    const client = await this.getClient();
-
-    const [totalCount, uniqueVisitors, onlineRaw, countryStatsRaw] =
-      await Promise.all([
-        this.getTotalCount(),
-        client.sMembers(KEYS.UNIQUE_VISITORS),
-        client.zRangeWithScores(KEYS.ONLINE_SET, 0, -1),
-        client.hGetAll(KEYS.COUNTRY_STATS),
-      ]);
-
-    // Get full info for each online visitor
-    const onlineVisitors: VisitorInfo[] = [];
-    for (const entry of onlineRaw) {
-      const info = await this.getVisitorInfo(entry.value);
-      if (info) {
-        onlineVisitors.push(info);
-      }
-    }
-
-    // Parse country stats
-    const countryStats: Record<string, number> = {};
-    for (const [code, count] of Object.entries(countryStatsRaw)) {
-      countryStats[code] = parseInt(count, 10);
-    }
-
-    return {
-      totalCount,
-      uniqueVisitors,
-      onlineVisitors,
-      countryStats,
+      ...online,
     };
   }
 }

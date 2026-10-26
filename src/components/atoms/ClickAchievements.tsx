@@ -98,7 +98,11 @@ export default function ClickAchievements() {
       clickCountRef.current = parseInt(savedClicks, 10);
     }
     if (savedUnlocked) {
-      unlockedIdsRef.current = new Set(JSON.parse(savedUnlocked));
+      try {
+        unlockedIdsRef.current = new Set(JSON.parse(savedUnlocked));
+      } catch {
+        localStorage.removeItem("jm-achievements");
+      }
     }
   }, []);
 
@@ -152,7 +156,11 @@ export default function ClickAchievements() {
   }, []);
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+    <div
+      className="fixed bottom-4 right-4 z-50 flex flex-col gap-2"
+      role="status"
+      aria-live="polite"
+    >
       <AnimatePresence>
         {toasts.map((toast) => (
           <motion.div

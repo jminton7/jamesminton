@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import Badge from "../atoms/Badge";
 
 /**
@@ -44,6 +44,7 @@ export default function FunProjectCard({
 }: FunProjectCardProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const prefersReducedMotion = useReducedMotion();
   const statusInfo = statusConfig[status];
 
   return (
@@ -91,22 +92,25 @@ export default function FunProjectCard({
       </div>
 
       {/* Animated border gradient on hover */}
-      <motion.div
-        className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.1), transparent)",
-          backgroundSize: "200% 100%",
-        }}
-        animate={{
-          backgroundPosition: ["200% 0", "-200% 0"],
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
+      {!prefersReducedMotion && (
+        <motion.div
+          aria-hidden="true"
+          className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.1), transparent)",
+            backgroundSize: "200% 100%",
+          }}
+          animate={{
+            backgroundPosition: ["200% 0", "-200% 0"],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        />
+      )}
     </motion.div>
   );
 }

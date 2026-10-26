@@ -1,8 +1,12 @@
-"use client";
-
+import type { Metadata } from "next";
 import PageLayout from "@/components/templates/PageLayout";
-import { motion } from "framer-motion";
 import { profile } from "@/data/profile";
+
+export const metadata: Metadata = {
+  title: "Contact",
+  description: "Get in touch with James Minton by email, LinkedIn or GitHub.",
+  alternates: { canonical: "/contact" },
+};
 
 /**
  * ContactPage - Simple contact page with mailto links and social cards.
@@ -20,28 +24,18 @@ export default function ContactPage() {
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <motion.div
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
+          <div className="text-center mb-16">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
               Get In Touch
             </h1>
             <p className="text-xl text-gray-400">
               Have a project in mind? Let&apos;s talk!
             </p>
-          </motion.div>
+          </div>
 
           <div className="max-w-xl mx-auto">
             {/* Contact Info */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="space-y-8"
-            >
+            <div className="space-y-8">
               <div className="text-center">
                 <p className="text-gray-400 leading-relaxed text-lg">
                   I&apos;m always open to discussing new projects, creative
@@ -72,7 +66,7 @@ export default function ContactPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Email</p>
+                    <p className="text-sm text-gray-400">Email</p>
                     <p className="text-white group-hover:text-purple-400 transition-colors">
                       {profile.email}
                     </p>
@@ -103,7 +97,7 @@ export default function ContactPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Location</p>
+                    <p className="text-sm text-gray-400">Location</p>
                     <p className="text-white">{profile.location}</p>
                   </div>
                 </div>
@@ -125,7 +119,7 @@ export default function ContactPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">LinkedIn</p>
+                    <p className="text-sm text-gray-400">LinkedIn</p>
                     <p className="text-white group-hover:text-purple-400 transition-colors">
                       Connect with me
                     </p>
@@ -149,7 +143,7 @@ export default function ContactPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">GitHub</p>
+                    <p className="text-sm text-gray-400">GitHub</p>
                     <p className="text-white group-hover:text-purple-400 transition-colors">
                       Check out my code
                     </p>
@@ -158,18 +152,8 @@ export default function ContactPage() {
               </div>
 
               {/* Main CTA Button */}
-              <motion.div
-                className="text-center pt-8"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-              >
-                <motion.a
-                  href={mailtoLink}
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-linear-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-full hover:from-purple-500 hover:to-blue-500 transition-all shadow-lg shadow-purple-500/25"
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                >
+              <div className="text-center pt-8">
+                <a href={mailtoLink} className="inline-flex items-center gap-3 px-8 py-4 bg-linear-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-full hover:from-purple-500 hover:to-blue-500 transition-all shadow-lg shadow-purple-500/25 hover:scale-105 hover:-translate-y-0.5">
                   <svg
                     className="w-5 h-5"
                     fill="none"
@@ -184,9 +168,9 @@ export default function ContactPage() {
                     />
                   </svg>
                   Send Me an Email
-                </motion.a>
-              </motion.div>
-            </motion.div>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>

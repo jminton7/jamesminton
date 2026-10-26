@@ -43,6 +43,7 @@ export default function HeroSection({
         </motion.div>
 
         <AnimatedText
+          as="h1"
           text={name}
           className="text-5xl md:text-7xl font-bold text-white justify-center mb-4"
           delay={0.2}
@@ -53,9 +54,9 @@ export default function HeroSection({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.5 }}
         >
-          <h2 className="text-2xl md:text-3xl font-light text-transparent bg-clip-text bg-linear-to-r from-purple-400 to-blue-400 mb-6">
+          <p className="text-2xl md:text-3xl font-light text-transparent bg-clip-text bg-linear-to-r from-purple-400 to-blue-400 mb-6">
             {title}
-          </h2>
+          </p>
         </motion.div>
 
         {/* Typewriter tagline */}
@@ -75,6 +76,7 @@ export default function HeroSection({
 
       {/* Scroll indicator */}
       <motion.div
+        aria-hidden="true"
         className="absolute bottom-10 left-1/2 -translate-x-1/2"
         animate={{ y: [0, 10, 0] }}
         transition={{ repeat: Infinity, duration: 2 }}

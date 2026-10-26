@@ -11,14 +11,17 @@ interface AnimatedTextProps {
   text: string;
   className?: string;
   delay?: number;
+  as?: "div" | "h1";
 }
 
 export default function AnimatedText({
   text,
   className = "",
   delay = 0,
+  as = "div",
 }: AnimatedTextProps) {
   const words = text.split(" ");
+  const Component = as === "h1" ? motion.h1 : motion.div;
 
   const container: Variants = {
     hidden: { opacity: 0 },
@@ -50,7 +53,7 @@ export default function AnimatedText({
   };
 
   return (
-    <motion.div
+    <Component
       className={`flex flex-wrap ${className}`}
       variants={container}
       initial="hidden"
@@ -59,8 +62,9 @@ export default function AnimatedText({
       {words.map((word, index) => (
         <motion.span variants={child} key={index} className="mr-2">
           {word}
+          {index < words.length - 1 && " "}
         </motion.span>
       ))}
-    </motion.div>
+    </Component>
   );
 }

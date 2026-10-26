@@ -20,6 +20,7 @@ export default function PageLayout({ children }: PageLayoutProps) {
   return (
     <div className="min-h-screen relative">
       <motion.main
+        id="content"
         key={pathname}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -26,6 +26,7 @@ export default function NavLink({
     >
       <Link
         href={href}
+        aria-current={isActive ? "page" : undefined}
         className={`relative px-4 py-2 text-sm font-medium transition-colors ${
           isActive ? "text-white" : "text-gray-400 hover:text-white"
         }`}

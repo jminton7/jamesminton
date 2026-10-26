@@ -1,9 +1,15 @@
-"use client";
-
+import type { Metadata } from "next";
 import PageLayout from "@/components/templates/PageLayout";
 import FunProjectCard from "@/components/organisms/FunProjectCard";
 import VisitorCounterCard from "@/components/molecules/VisitorCounterCard";
 import { funProjects } from "@/data/funProjects";
+
+export const metadata: Metadata = {
+  title: "Fun Stuff",
+  description:
+    "Side projects and experiments by James Minton, including a live Redis-backed visitor counter.",
+  alternates: { canonical: "/fun-stuff" },
+};
 
 export default function FunStuffPage() {
   return (

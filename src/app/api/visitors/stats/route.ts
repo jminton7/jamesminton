@@ -28,11 +28,8 @@ export async function GET(): Promise<NextResponse> {
     console.error("[VisitorStatsController] Error fetching stats:", error);
 
     return NextResponse.json(
-      {
-        error: "Failed to fetch visitor stats",
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 },
+      { error: "Visitor stats are temporarily unavailable" },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
     );
   }
 }

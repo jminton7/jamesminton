@@ -13,6 +13,7 @@ interface TrailParticle {
   x: number;
   y: number;
   symbol: string;
+  rotate: number;
 }
 
 const CODE_SYMBOLS = [
@@ -45,9 +46,12 @@ export default function CursorTrail() {
   const [isEnabled, setIsEnabled] = useState(true);
 
   useEffect(() => {
-    // Don't run on mobile/touch devices
+    // Don't run on mobile/touch devices or for users who prefer reduced motion
     if (typeof window === "undefined") return;
-    if ("ontouchstart" in window) {
+    if (
+      "ontouchstart" in window ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
       setIsEnabled(false);
       return;
     }
@@ -66,6 +70,7 @@ export default function CursorTrail() {
         x: e.clientX,
         y: e.clientY,
         symbol: CODE_SYMBOLS[Math.floor(Math.random() * CODE_SYMBOLS.length)],
+        rotate: Math.random() > 0.5 ? 20 : -20,
       };
 
       setParticles((prev) => [...prev.slice(-12), newParticle]);
@@ -89,7 +94,10 @@ export default function CursorTrail() {
   if (!isEnabled) return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+    <div
+      className="fixed inset-0 pointer-events-none z-50 overflow-hidden"
+      aria-hidden="true"
+    >
       <AnimatePresence>
         {particles.map((particle) => (
           <motion.span
@@ -105,7 +113,7 @@ export default function CursorTrail() {
               y: particle.y - 30,
               opacity: 0,
               scale: 0.5,
-              rotate: Math.random() > 0.5 ? 20 : -20,
+              rotate: particle.rotate,
             }}
             exit={{ opacity: 0 }}
             transition={{

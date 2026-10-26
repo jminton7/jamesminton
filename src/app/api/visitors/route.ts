@@ -5,17 +5,17 @@ import { visitorService } from "@/lib/services/VisitorService";
  * Visitors API Controller
  *
  * Endpoints:
- *   GET  /api/visitors - Track a visit and return visitor stats
+ *   POST /api/visitors - Track a visit and return visitor stats
  *
  * Similar to a C# API Controller - handles HTTP concerns,
  * delegates business logic to services.
  */
 
 /**
- * GET /api/visitors
+ * POST /api/visitors
  * Tracks a visitor and returns their visitor number and stats.
  */
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // Extract visitor identification from request
     const ipAddress = getClientIp(request);
@@ -31,21 +31,21 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           message: "Stats only (bot detected)",
           stats,
         },
-        { status: 200 },
+        { status: 200, headers: { "Cache-Control": "no-store" } },
       );
     }
 
-    // Generate a consistent visitor ID
-    const visitorId = visitorService.generateVisitorId(ipAddress, userAgent);
+    // Anonymous, daily-rotating visitor ID (the IP itself is never stored)
+    const visitorId = await visitorService.generateVisitorId(
+      ipAddress,
+      userAgent,
+    );
 
-    // Track the visitor (business logic in service)
     const result = await visitorService.trackVisitor({
       visitorId,
-      userAgent,
-      ipAddress,
+      countryCode: getCountryCode(request),
     });
 
-    // Return success response
     return NextResponse.json(result, {
       status: 200,
       headers: {
@@ -53,18 +53,22 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       },
     });
   } catch (error) {
-    // Log error (in production, use proper logging)
     console.error("[VisitorsController] Error tracking visitor:", error);
 
-    // Return error response
     return NextResponse.json(
-      {
-        error: "Failed to track visitor",
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 },
+      { error: "Visitor tracking is temporarily unavailable" },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
     );
   }
+}
+
+/**
+ * Reads the visitor's country from Vercel's geolocation header.
+ * Returns null when running locally or the country is unknown.
+ */
+function getCountryCode(request: NextRequest): string | null {
+  const country = request.headers.get("x-vercel-ip-country");
+  return country && /^[A-Z]{2}$/.test(country) ? country : null;
 }
 
 /**

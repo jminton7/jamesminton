@@ -1,8 +1,14 @@
-"use client";
-
+import type { Metadata } from "next";
 import PageLayout from "@/components/templates/PageLayout";
 import ExperienceCard from "@/components/organisms/ExperienceCard";
 import { experiences } from "@/data/experience";
+
+export const metadata: Metadata = {
+  title: "Experience",
+  description:
+    "James Minton's career history: leading engineering teams and building B2B SaaS platforms with .NET, React and Azure.",
+  alternates: { canonical: "/experience" },
+};
 
 export default function ExperiencePage() {
   return (

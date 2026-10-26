@@ -1,8 +1,8 @@
+import { createHmac } from "node:crypto";
 import {
   visitorRepository,
   VisitorStats,
 } from "@/lib/repositories/VisitorRepository";
-import { geolocationService } from "@/lib/services/GeolocationService";
 
 /**
  * VisitorService - Business logic layer for visitor tracking.
@@ -20,8 +20,7 @@ export interface VisitorResponse {
 
 export interface TrackVisitorRequest {
   visitorId: string;
-  userAgent?: string;
-  ipAddress?: string;
+  countryCode: string | null;
 }
 
 export class VisitorService {
@@ -30,59 +29,22 @@ export class VisitorService {
    * Handles both new and returning visitors.
    */
   async trackVisitor(request: TrackVisitorRequest): Promise<VisitorResponse> {
-    const { visitorId, ipAddress } = request;
+    const { visitorId, countryCode } = request;
 
-    // Check if this is a new unique visitor
-    const isNewVisitor = await visitorRepository.addUniqueVisitor(visitorId);
+    const [isNewVisitor, visitorNumber] = await Promise.all([
+      visitorRepository.addUniqueVisitor(visitorId),
+      visitorRepository.incrementTotalCount(),
+      visitorRepository.setVisitorOnline(visitorId, countryCode),
+    ]);
 
-    // Increment total count (page views)
-    const visitorNumber = await visitorRepository.incrementTotalCount();
-
-    // Mark as online
-    await visitorRepository.setVisitorOnline(visitorId);
-
-    // Fetch and store location (async, don't block response)
-    if (ipAddress) {
-      this.fetchAndStoreLocation(visitorId, ipAddress).catch((err) => {
-        console.error("[VisitorService] Error storing location:", err);
-      });
-    }
-
-    // Get current stats
     const stats = await visitorRepository.getStats();
-
-    // Build response
-    const message = this.buildWelcomeMessage(visitorNumber, isNewVisitor);
 
     return {
       visitorNumber,
       isNewVisitor,
-      message,
+      message: this.buildWelcomeMessage(visitorNumber, isNewVisitor),
       stats,
     };
-  }
-
-  /**
-   * Fetches geolocation and stores visitor info.
-   */
-  private async fetchAndStoreLocation(
-    visitorId: string,
-    ipAddress: string,
-  ): Promise<void> {
-    const location = await geolocationService.getLocation(ipAddress);
-
-    await visitorRepository.saveVisitorInfo(
-      visitorId,
-      ipAddress,
-      location
-        ? {
-            country: location.country,
-            countryCode: location.countryCode,
-            city: location.city,
-            region: location.region,
-          }
-        : null,
-    );
   }
 
   /**
@@ -93,19 +55,21 @@ export class VisitorService {
   }
 
   /**
-   * Generates a visitor ID from request headers.
-   * In production, you might use a more sophisticated fingerprinting approach.
+   * Generates an anonymous visitor ID from the IP and user agent.
+   * Uses an HMAC with a random salt that rotates daily, so the ID can't be
+   * reversed to an IP or linked to the same person on a different day.
    */
-  generateVisitorId(ipAddress: string, userAgent: string): string {
-    // Simple hash of IP + User Agent for unique-ish identification
-    const input = `${ipAddress}-${userAgent}`;
-    let hash = 0;
-    for (let i = 0; i < input.length; i++) {
-      const char = input.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash; // Convert to 32bit integer
-    }
-    return `visitor_${Math.abs(hash).toString(36)}`;
+  async generateVisitorId(
+    ipAddress: string,
+    userAgent: string,
+  ): Promise<string> {
+    const day = new Date().toISOString().slice(0, 10);
+    const salt = await visitorRepository.getDailySalt(day);
+    const hash = createHmac("sha256", salt)
+      .update(`${ipAddress}|${userAgent}`)
+      .digest("base64url")
+      .slice(0, 22);
+    return `visitor_${hash}`;
   }
 
   /**

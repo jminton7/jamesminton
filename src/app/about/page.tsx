@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import PageLayout from "@/components/templates/PageLayout";
 import { about } from "@/data/profile";
+
+export const metadata: Metadata = {
+  title: "About",
+  description:
+    "About James Minton: a full stack lead engineer who modernises legacy platforms, leads teams and mentors engineers.",
+  alternates: { canonical: "/about" },
+};
 
 export default function AboutPage() {
   return (

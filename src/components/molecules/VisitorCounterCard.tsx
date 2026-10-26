@@ -36,18 +36,20 @@ export default function VisitorCounterCard({
 }: VisitorCounterCardProps) {
   const [stats, setStats] = useState<VisitorStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUnavailable, setIsUnavailable] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Add cache-busting to get fresh data
-        const response = await fetch(`/api/visitors/stats?t=${Date.now()}`);
-        if (response.ok) {
-          const result = await response.json();
-          setStats(result);
+        const response = await fetch("/api/visitors/stats");
+        if (!response.ok) {
+          throw new Error(`Stats request failed (${response.status})`);
         }
+        setStats(await response.json());
+        setIsUnavailable(false);
       } catch (err) {
         console.error("VisitorCounterCard error:", err);
+        setIsUnavailable(true);
       } finally {
         setIsLoading(false);
       }
@@ -60,6 +62,12 @@ export default function VisitorCounterCard({
     return () => clearInterval(interval);
   }, []);
 
+  const formatStat = (value: number | undefined) => {
+    if (isLoading) return "...";
+    if (isUnavailable || value === undefined) return "–";
+    return value.toLocaleString();
+  };
+
   return (
     <motion.div
       className="relative bg-linear-to-br from-gray-900 to-gray-800 rounded-2xl p-6 border border-gray-700 overflow-hidden group hover:border-purple-500/50 transition-colors"
@@ -69,13 +77,15 @@ export default function VisitorCounterCard({
       whileHover={{ y: -5 }}
     >
       {/* Live indicator */}
-      <div className="absolute top-4 right-4 flex items-center gap-2">
-        <span className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-        </span>
-        <span className="text-xs text-green-400 font-mono">LIVE</span>
-      </div>
+      {!isUnavailable && (
+        <div className="absolute top-4 right-4 flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+          </span>
+          <span className="text-xs text-green-400 font-mono">LIVE</span>
+        </div>
+      )}
 
       {/* Icon */}
       <div className="text-4xl mb-4">👀</div>
@@ -96,9 +106,9 @@ export default function VisitorCounterCard({
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring" }}
           >
-            {isLoading ? "..." : (stats?.totalCount.toLocaleString() ?? "0")}
+            {formatStat(stats?.totalCount)}
           </motion.p>
-          <p className="text-gray-500 text-xs mt-1">Total Visits</p>
+          <p className="text-gray-400 text-xs mt-1">Total Visits</p>
         </div>
         <div className="bg-gray-800/50 rounded-lg p-3 text-center">
           <motion.p
@@ -107,38 +117,48 @@ export default function VisitorCounterCard({
             animate={{ scale: 1 }}
             transition={{ delay: 0.3, type: "spring" }}
           >
-            {isLoading ? "..." : (stats?.uniqueCount.toLocaleString() ?? "0")}
+            {formatStat(stats?.uniqueCount)}
           </motion.p>
-          <p className="text-gray-500 text-xs mt-1">Unique</p>
+          <p className="text-gray-400 text-xs mt-1">Unique</p>
         </div>
         <div className="bg-gray-800/50 rounded-lg p-3 text-center relative">
-          <div className="absolute top-1 right-1">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-            </span>
-          </div>
+          {!isUnavailable && (
+            <div className="absolute top-1 right-1">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+            </div>
+          )}
           <motion.p
             className="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r from-yellow-400 to-orange-400"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.4, type: "spring" }}
           >
-            {isLoading ? "..." : (stats?.onlineCount.toLocaleString() ?? "0")}
+            {formatStat(stats?.onlineCount)}
           </motion.p>
-          <p className="text-gray-500 text-xs mt-1">Online Now</p>
+          <p className="text-gray-400 text-xs mt-1">Online Now</p>
         </div>
       </div>
 
+      {isUnavailable && (
+        <p className="text-gray-400 text-xs mb-6" role="status">
+          Stats are offline right now. Check back soon.
+        </p>
+      )}
+
       {/* Online countries */}
-      {stats?.onlineCountries && stats.onlineCountries.length > 0 && (
+      {!isUnavailable &&
+        stats?.onlineCountries &&
+        stats.onlineCountries.length > 0 && (
         <motion.div
           className="mb-6 p-3 bg-gray-800/30 rounded-lg"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <p className="text-gray-500 text-xs mb-2">Currently viewing from:</p>
+          <p className="text-gray-400 text-xs mb-2">Currently viewing from:</p>
           <div className="flex flex-wrap gap-2">
             {stats.onlineCountries.slice(0, 6).map(({ code, count }) => (
               <span

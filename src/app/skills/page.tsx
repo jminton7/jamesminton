@@ -1,8 +1,14 @@
-"use client";
-
+import type { Metadata } from "next";
 import PageLayout from "@/components/templates/PageLayout";
 import SkillsGrid from "@/components/organisms/SkillsGrid";
 import { skillCategories } from "@/data/skills";
+
+export const metadata: Metadata = {
+  title: "Skills",
+  description:
+    "The languages, frameworks, cloud platforms and tools James Minton works with, including C#/.NET, TypeScript, React, Next.js and Azure.",
+  alternates: { canonical: "/skills" },
+};
 
 export default function SkillsPage() {
   return (

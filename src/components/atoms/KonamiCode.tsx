@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 /**
@@ -21,42 +21,68 @@ const KONAMI_CODE = [
   "KeyA",
 ];
 
+const CONFETTI_COLOURS = ["#a855f7", "#3b82f6", "#22c55e", "#eab308", "#ef4444"];
+
+interface ConfettiPiece {
+  left: number;
+  drift: number;
+  spin: number;
+  duration: number;
+  delay: number;
+}
+
+function createConfetti(count: number): ConfettiPiece[] {
+  return Array.from({ length: count }, () => ({
+    left: Math.random() * 100,
+    drift: (Math.random() - 0.5) * 200,
+    spin: 360 * (Math.random() > 0.5 ? 1 : -1),
+    duration: 2 + Math.random() * 2,
+    delay: Math.random() * 0.5,
+  }));
+}
+
 export default function KonamiCode() {
-  const [inputSequence, setInputSequence] = useState<string[]>([]);
+  const inputSequenceRef = useRef<string[]>([]);
   const [isActivated, setIsActivated] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
-
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    const key = event.code;
-
-    setInputSequence((prev) => {
-      const newSequence = [...prev, key].slice(-KONAMI_CODE.length);
-
-      // Check if the sequence matches
-      if (newSequence.join(",") === KONAMI_CODE.join(",")) {
-        setIsActivated(true);
-        setShowMessage(true);
-
-        // Hide message after 5 seconds
-        setTimeout(() => setShowMessage(false), 5000);
-
-        // Log to console
-        console.log(
-          "%c🔫 30 LIVES! Now you're ready to take on Red Falcon! 💀",
-          "font-size: 20px; color: #fbbf24; background: linear-gradient(90deg, #7c3aed, #3b82f6); padding: 10px 20px; border-radius: 8px; font-weight: bold;",
-        );
-
-        return [];
-      }
-
-      return newSequence;
-    });
-  }, []);
+  const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
 
   useEffect(() => {
+    let hideTimeout: ReturnType<typeof setTimeout> | undefined;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const newSequence = [...inputSequenceRef.current, event.code].slice(
+        -KONAMI_CODE.length,
+      );
+
+      // Check if the sequence matches
+      if (newSequence.join(",") !== KONAMI_CODE.join(",")) {
+        inputSequenceRef.current = newSequence;
+        return;
+      }
+
+      inputSequenceRef.current = [];
+      setConfetti(createConfetti(20));
+      setIsActivated(true);
+      setShowMessage(true);
+
+      // Hide message after 5 seconds
+      clearTimeout(hideTimeout);
+      hideTimeout = setTimeout(() => setShowMessage(false), 5000);
+
+      // Log to console
+      console.log(
+        "%c🔫 30 LIVES! Now you're ready to take on Red Falcon! 💀",
+        "font-size: 20px; color: #fbbf24; background: linear-gradient(90deg, #7c3aed, #3b82f6); padding: 10px 20px; border-radius: 8px; font-weight: bold;",
+      );
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown]);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      clearTimeout(hideTimeout);
+    };
+  }, []);
 
   return (
     <>
@@ -70,29 +96,23 @@ export default function KonamiCode() {
             exit={{ opacity: 0 }}
           >
             {/* Confetti-like particles */}
-            {[...Array(20)].map((_, i) => (
+            {confetti.map((piece, i) => (
               <motion.div
                 key={i}
                 className="absolute w-3 h-3 rounded-full"
                 style={{
-                  background: [
-                    "#a855f7",
-                    "#3b82f6",
-                    "#22c55e",
-                    "#eab308",
-                    "#ef4444",
-                  ][i % 5],
-                  left: `${Math.random() * 100}%`,
+                  background: CONFETTI_COLOURS[i % CONFETTI_COLOURS.length],
+                  left: `${piece.left}%`,
                   top: "-20px",
                 }}
                 animate={{
                   y: ["0vh", "100vh"],
-                  x: [0, (Math.random() - 0.5) * 200],
-                  rotate: [0, 360 * (Math.random() > 0.5 ? 1 : -1)],
+                  x: [0, piece.drift],
+                  rotate: [0, piece.spin],
                 }}
                 transition={{
-                  duration: 2 + Math.random() * 2,
-                  delay: Math.random() * 0.5,
+                  duration: piece.duration,
+                  delay: piece.delay,
                   ease: "easeIn",
                 }}
               />

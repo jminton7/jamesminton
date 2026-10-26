@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 /**
@@ -42,6 +42,26 @@ export default function BusinessCard({
   const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
   const [isHovering, setIsHovering] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const openButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Move focus into the dialog when it opens and close it with Escape
+  useEffect(() => {
+    if (!isExpanded) return;
+
+    const openButton = openButtonRef.current;
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsExpanded(false);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      openButton?.focus();
+    };
+  }, [isExpanded]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -66,9 +86,13 @@ export default function BusinessCard({
 
   return (
     <>
-      {/* Collapsed mini card */}
-      <motion.div
-        className="fixed top-24 left-6 z-40 cursor-pointer"
+      {/* Collapsed mini card (hidden on small screens where it would cover the hero) */}
+      <motion.button
+        ref={openButtonRef}
+        type="button"
+        aria-haspopup="dialog"
+        aria-label={`Open ${name}'s business card`}
+        className="fixed top-24 left-6 z-40 cursor-pointer hidden md:block text-left rounded-xl"
         initial={{ opacity: 0, x: -100 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5, duration: 0.5 }}
@@ -89,11 +113,11 @@ export default function BusinessCard({
               <p className="text-purple-400 text-xs">{title}</p>
             </div>
           </div>
-          <p className="text-gray-500 text-xs mt-2 relative">
+          <p className="text-gray-400 text-xs mt-2 relative">
             Click to expand →
           </p>
         </div>
-      </motion.div>
+      </motion.button>
 
       {/* Expanded card overlay */}
       <AnimatePresence>
@@ -112,6 +136,9 @@ export default function BusinessCard({
             <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
               <motion.div
                 ref={cardRef}
+                role="dialog"
+                aria-modal="true"
+                aria-label={`${name}'s business card`}
                 className="relative pointer-events-auto"
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -127,6 +154,9 @@ export default function BusinessCard({
               >
                 {/* Close button - ON the card */}
                 <motion.button
+                  ref={closeButtonRef}
+                  type="button"
+                  aria-label="Close business card"
                   className="absolute -top-3 -right-3 z-10 text-white bg-gray-800 hover:bg-gray-700 transition-colors p-1.5 rounded-full border border-purple-500/30"
                   onClick={handleClose}
                   whileHover={{ scale: 1.1 }}

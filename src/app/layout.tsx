@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/organisms/Navigation";
 import EasterEggs from "@/components/atoms/EasterEggs";
+import MotionProvider from "@/components/templates/MotionProvider";
+import { profile } from "@/data/profile";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,8 +16,30 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteTitle = `${profile.name} | ${profile.title}`;
+const siteDescription =
+  "James Minton is a full stack lead software engineer in Leatherhead, UK, with 10+ years building scalable web applications with .NET, React, Next.js and Azure.";
+
 export const metadata: Metadata = {
-  title: "James Minton | Lead Software Developer",
+  metadataBase: new URL(profile.website),
+  title: {
+    default: siteTitle,
+    template: `%s | ${profile.name}`,
+  },
+  description: siteDescription,
+  authors: [{ name: profile.name, url: profile.website }],
+  openGraph: {
+    type: "website",
+    siteName: profile.name,
+    locale: "en_GB",
+    title: siteTitle,
+    description: siteDescription,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteTitle,
+    description: siteDescription,
+  },
 };
 
 export default function RootLayout({
@@ -24,10 +48,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en-GB">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-black text-white`}
       >
+        <a
+          href="#content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-100 focus:px-4 focus:py-2 focus:rounded-lg focus:bg-purple-600 focus:text-white"
+        >
+          Skip to content
+        </a>
         {/* Shared animated gradient background */}
         <div className="fixed inset-0 -z-10">
           <div className="absolute inset-0 bg-linear-to-b from-gray-950 via-black to-gray-950" />
@@ -58,12 +88,14 @@ export default function RootLayout({
         </div>
 
         {/* Persistent Navigation */}
-        <Navigation />
+        <MotionProvider>
+          <Navigation />
 
-        {/* Easter Eggs (Console messages + Konami Code) */}
-        <EasterEggs />
+          {/* Easter Eggs (Console messages + Konami Code) */}
+          <EasterEggs />
 
-        {children}
+          {children}
+        </MotionProvider>
       </body>
     </html>
   );
